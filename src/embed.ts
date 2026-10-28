@@ -1,4 +1,4 @@
-import { mountChatWidget, type GoftaChatConfig } from './widget'
+import { mountGoftaChatWidget, type GoftaChatConfig } from './widget'
 
 const script = document.currentScript instanceof HTMLScriptElement ? document.currentScript : null
 const attributes = script?.dataset
@@ -16,7 +16,7 @@ const fromScript: Partial<GoftaChatConfig> = {
 const config: GoftaChatConfig = { ...fromScript, ...window.GoftaChatConfig }
 
 function boot() {
-  if (!window.GoftaChatWidget) window.GoftaChatWidget = mountChatWidget(config)
+  if (!window.GoftaChatWidget) window.GoftaChatWidget = mountGoftaChatWidget(config)
 }
 
 if (document.body) boot()

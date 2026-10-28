@@ -1,9 +1,9 @@
 {
-  "name": "gofta-chat-widget",
+  "name": "gofta-chat",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A lightweight, framework-agnostic embeddable support chat widget.",
+  "description": "Gofta Chat embeddable widget for modern websites.",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",

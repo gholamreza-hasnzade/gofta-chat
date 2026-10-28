@@ -105,9 +105,9 @@ function loadHistory(key: string): ChatMessage[] {
   } catch { return [] }
 }
 
-export function mountChatWidget(options: GoftaChatConfig = {}): GoftaChatApi {
+export function mountGoftaChatWidget(options: GoftaChatConfig = {}): GoftaChatApi {
   const config = {
-    siteId: 'demo-site-v2', brandName: 'گفتا', assistantName: 'دستیار گفتا',
+    siteId: 'gofta-demo', brandName: 'Gofta Chat', assistantName: 'دستیار Gofta Chat',
     welcomeMessage: 'سلام! خوش اومدی 🌿\nپیامت را بنویس یا از گزینه‌های زیر شروع کن.',
     primaryColor: '#5b57cf', direction: 'rtl' as const, position: 'right' as const,
     initiallyOpen: false, persistHistory: true, maxFileSizeMb: 12, maxAttachments: 4, maxVoiceSeconds: 90,
@@ -127,11 +127,15 @@ export function mountChatWidget(options: GoftaChatConfig = {}): GoftaChatApi {
   styles.textContent = `${widgetCss}\n.gft-root{--gft-brand:${safeColor(config.primaryColor)}}`
   const esc = escapeHtml
   const faqs = config.faqs?.length ? config.faqs : sampleFaqs
-  const siteKey = `gofta:v2:${config.siteId}`
+  const siteKey = `gofta:v3:${config.siteId}`
+  const legacySiteKeys = [`gofta:v2:${config.siteId}`]
   const visitorKey = `${siteKey}:visitor`
+  const legacyVisitorKeys = legacySiteKeys.map((key) => `${key}:visitor`)
   let visitorId = ''
-  try { visitorId = localStorage.getItem(visitorKey) || newId('guest'); localStorage.setItem(visitorKey, visitorId) }
-  catch { visitorId = newId('guest') }
+  try {
+    visitorId = localStorage.getItem(visitorKey) || legacyVisitorKeys.map((key) => localStorage.getItem(key)).find(Boolean) || newId('guest')
+    localStorage.setItem(visitorKey, visitorId)
+  } catch { visitorId = newId('guest') }
 
   shadow.innerHTML = `<div class="gft-root gft-${config.position === 'left' ? 'left' : 'right'}" dir="${config.direction === 'ltr' ? 'ltr' : 'rtl'}">
     <section class="gft-panel" role="dialog" aria-label="گفت‌وگو با ${esc(config.brandName)}" aria-modal="false" hidden>
@@ -188,7 +192,12 @@ export function mountChatWidget(options: GoftaChatConfig = {}): GoftaChatApi {
   const recordingBar = shadow.querySelector<HTMLElement>('.gft-recording')!
   const lightbox = shadow.querySelector<HTMLElement>('.gft-lightbox')!
   const lightboxImage = lightbox.querySelector<HTMLImageElement>('img')!
-  const storage = config.persistHistory ? loadHistory(siteKey) : []
+  const currentHistory = config.persistHistory ? loadHistory(siteKey) : []
+  const legacyHistory = config.persistHistory && currentHistory.length === 0 ? legacySiteKeys.map(loadHistory).find((history) => history.length > 0) ?? [] : []
+  const storage = currentHistory.length ? currentHistory : legacyHistory
+  if (legacyHistory.length) {
+    try { localStorage.setItem(siteKey, JSON.stringify(legacyHistory)) } catch { /* storage may be disabled/full */ }
+  }
   let messages = storage
   let attachments: ChatAttachment[] = []
   let replyToId: string | null = null
@@ -409,7 +418,7 @@ export function mountChatWidget(options: GoftaChatConfig = {}): GoftaChatApi {
     } catch (error) {
       if (destroyed || epoch !== conversationEpoch) return
       addMessage(makeMessage('assistant', 'ارتباط با سرویس پاسخ‌گویی برقرار نشد. کمی بعد دوباره تلاش کن.'))
-      console.error('[Gofta] message callback failed', error)
+      console.error('[Gofta Chat] message callback failed', error)
     } finally {
       pendingReplies = Math.max(0, pendingReplies - 1)
       typing.hidden = pendingReplies === 0
@@ -540,7 +549,7 @@ export function mountChatWidget(options: GoftaChatConfig = {}): GoftaChatApi {
       stream?.getTracks().forEach((track) => track.stop())
       stream = null
       showNotice('میکروفن در دسترس نیست یا اجازه داده نشد.')
-      console.info('[Gofta] recording unavailable', error)
+      console.info('[Gofta Chat] recording unavailable', error)
     }
   }
 

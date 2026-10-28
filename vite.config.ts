@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(process.cwd(), 'src/embed.ts'),
-      name: 'GoftaChatWidget',
+      name: 'GoftaChatBundle',
       formats: ['iife'],
       fileName: () => 'gofta-chat-widget.js',
     },
