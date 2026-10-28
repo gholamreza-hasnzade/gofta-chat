@@ -4,6 +4,12 @@ A lightweight, framework-agnostic support chat widget that can be embedded in an
 
 > **Scope:** this repository delivers the embeddable frontend widget and a demo storefront. It does not include a production AI service, chat backend, operator dashboard, or file-storage service. Connect the documented callbacks to your own server for production use.
 
+## Preview
+
+![Gofta Chat demo storefront and embedded chat widget](docs/assets/gofta-chat-preview.png)
+
+The screenshot shows the demo storefront with the Gofta Chat widget open. It is included in the repository so the project README also works offline.
+
 ## Contents
 
 - [Quick start](#quick-start)
